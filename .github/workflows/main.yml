@@ -17,16 +17,24 @@ jobs:
       with:
         node-version: '14'
 
-    - name: Install Boost
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y libboost-all-dev
-
     - name: Setup Emscripten
       uses: mymindstorm/setup-emsdk@v11
 
     - name: Verify Emscripten installation
       run: emcc -v
+
+    - name: Download and prepare Boost
+      run: |
+        wget https://boostorg.jfrog.io/artifactory/main/release/1.76.0/source/boost_1_76_0.tar.gz
+        tar xzf boost_1_76_0.tar.gz
+        cd boost_1_76_0
+        ./bootstrap.sh
+        echo "using emscripten : : em++ ;" > user-config.jam
+
+    - name: Build Boost for Emscripten
+      run: |
+        cd boost_1_76_0
+        ./b2 --with-system --with-filesystem --with-thread --with-date_time --with-chrono --with-regex --with-serialization --with-program_options toolset=emscripten link=static threading=multi runtime-link=static thread
 
     - name: Install dependencies
       run: |
@@ -34,7 +42,7 @@ jobs:
 
     - name: Build
       run: |
-        make TYPE=release
+        make TYPE=release BOOST_ROOT=${{ github.workspace }}/boost_1_76_0
 
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
