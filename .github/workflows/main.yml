@@ -26,11 +26,10 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libboost-all-dev
 
-      - name: Configure CMake
-        run: emcmake cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Release
-
-      - name: Build
-        run: cmake --build ${{github.workspace}}/build --config Release
+      - name: Build project
+        run: |
+          mkdir -p build/release
+          emmake make TYPE=release
           
       - name: Setup Pages
         uses: actions/configure-pages@v3
@@ -38,7 +37,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v2
         with:
-          path: '${{github.workspace}}/build'
+          path: './build/release'
 
   deploy:
     environment:
