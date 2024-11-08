@@ -21,9 +21,15 @@ jobs:
       - name: Set up Emscripten
         uses: mymindstorm/setup-emsdk@v11
 
+      - name: Install Boost
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libboost-all-dev
+
       - name: Build project
         run: |
-          make TYPE=release
+          emconfigure cmake .
+          emmake make TYPE=release
           
       - name: Setup Pages
         uses: actions/configure-pages@v3
